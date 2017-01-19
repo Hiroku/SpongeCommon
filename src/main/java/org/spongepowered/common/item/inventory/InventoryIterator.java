@@ -47,7 +47,7 @@ public class InventoryIterator<TInventory, TStack> implements Iterator<Inventory
     }
     
     public InventoryIterator(Lens<TInventory, TStack> lens, Fabric<TInventory> inventory, Inventory context) {
-        this.children = lens.getChildren();
+        this.children = lens.getSpanningChildren(); // TODO should this be SpanningChildren instead?
         this.inventory = inventory;
         this.context = context;
     }

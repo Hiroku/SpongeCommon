@@ -355,8 +355,10 @@ public class Adapter implements MinecraftInventoryAdapter {
 
         @Override
         public Inventory next() {
+            if (true)
+                return super.next();
             try {
-                return this.adapter.getChild(this.next++);
+                return this.adapter.getChild(this.next++); // TODO why is this overriding the other next
             } catch (IndexOutOfBoundsException e) {
                 throw new NoSuchElementException();
             }
@@ -423,7 +425,7 @@ public class Adapter implements MinecraftInventoryAdapter {
     @SuppressWarnings("unchecked")
     @Override
     public <T extends Inventory> T next() {
-        return (T) this.emptyInventory();
+        return (T) this.emptyInventory(); // TODO implement me
     }
 
 //    protected Inventory generateParent(Lens<IInventory, net.minecraft.item.ItemStack> root) {
