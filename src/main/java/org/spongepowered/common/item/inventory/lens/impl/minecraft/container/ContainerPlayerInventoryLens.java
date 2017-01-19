@@ -29,10 +29,8 @@ import net.minecraft.item.ItemStack;
 import org.spongepowered.common.item.inventory.adapter.InventoryAdapter;
 import org.spongepowered.common.item.inventory.lens.SlotProvider;
 import org.spongepowered.common.item.inventory.lens.impl.comp.CraftingInventoryLensImpl;
-import org.spongepowered.common.item.inventory.lens.impl.comp.GridInventoryLensImpl;
-import org.spongepowered.common.item.inventory.lens.impl.comp.HotbarLensImpl;
 import org.spongepowered.common.item.inventory.lens.impl.comp.OrderedInventoryLensImpl;
-import org.spongepowered.common.item.inventory.lens.impl.slots.SlotLensImpl;
+import org.spongepowered.common.item.inventory.lens.impl.minecraft.MainPlayerInventoryLens;
 
 import java.util.Arrays;
 
@@ -45,16 +43,20 @@ public class ContainerPlayerInventoryLens extends ContainerLens {
 
     @Override
     protected void init(SlotProvider<IInventory, ItemStack> slots) {
-        final CraftingInventoryLensImpl crafting = new CraftingInventoryLensImpl(0, 1, 2, 2, 2, slots);
-        final OrderedInventoryLensImpl armor = new OrderedInventoryLensImpl((1 + 4), 4, 1, slots);
-        final GridInventoryLensImpl main = new GridInventoryLensImpl(((1 + 4) + 4), 9, 3, 9, slots);
-        final HotbarLensImpl hotbar = new HotbarLensImpl((((1 + 4) + 4) + 27), 9, slots);
-        final OrderedInventoryLensImpl offHand = new OrderedInventoryLensImpl(((((1 + 4) + 4) + 27) + 9), 1, 1, slots);
+        int index = 0;
+        // 2x2 Crafting + Output
+        final CraftingInventoryLensImpl crafting = new CraftingInventoryLensImpl(index, 1, 2, 2, 2, slots);
+        // 4 ArmorSlots
+        final OrderedInventoryLensImpl armor = new OrderedInventoryLensImpl(index = index + 1 + 4, 4, 1, slots);
+        // 27 Main + 9 Hotbar
+        final MainPlayerInventoryLens main = new MainPlayerInventoryLens(index = index + 4, adapter, slots);
+        // 1 Offhand
+        final OrderedInventoryLensImpl offHand = new OrderedInventoryLensImpl(index + 27 + 9, 1, 1, slots);
 
         // TODO actual Container order is:
         // CraftingOutput (1) -> Crafting (4) -> ArmorSlots (4) -> MainInventory (27) -> Hotbar (9) -> Offhand (1)
         // how to handle issues like in #939? ; e.g. Inventory#offer using a different insertion order
-        this.viewedInventories = Arrays.asList(hotbar, main, armor, crafting, offHand);
+        this.viewedInventories = Arrays.asList(main, armor, crafting, offHand);
         super.init(slots);
     }
 }

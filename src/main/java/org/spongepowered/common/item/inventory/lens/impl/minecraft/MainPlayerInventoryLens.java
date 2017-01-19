@@ -22,44 +22,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.common.item.inventory.lens.impl.minecraft.container;
+package org.spongepowered.common.item.inventory.lens.impl.minecraft;
 
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import org.spongepowered.api.block.tileentity.carrier.Chest;
 import org.spongepowered.common.item.inventory.adapter.InventoryAdapter;
-import org.spongepowered.common.item.inventory.lens.Lens;
 import org.spongepowered.common.item.inventory.lens.SlotProvider;
+import org.spongepowered.common.item.inventory.lens.comp.GridInventoryLens;
+import org.spongepowered.common.item.inventory.lens.comp.HotbarLens;
+import org.spongepowered.common.item.inventory.lens.impl.MinecraftLens;
 import org.spongepowered.common.item.inventory.lens.impl.comp.GridInventoryLensImpl;
-import org.spongepowered.common.item.inventory.lens.impl.minecraft.MainPlayerInventoryLens;
+import org.spongepowered.common.item.inventory.lens.impl.comp.HotbarLensImpl;
 
-import java.util.Arrays;
+public class MainPlayerInventoryLens extends MinecraftLens {
 
-/**
- * A {@link Lens} comprising of when a Minecraft-like {@link Chest} is opened.
- */
-public class ContainerChestInventoryLens extends ContainerLens {
+    private HotbarLensImpl hotbar;
+    private GridInventoryLensImpl main;
 
-    private MainPlayerInventoryLens playerInventory;
-    private GridInventoryLensImpl chestInventory;
-    private int numRows;
+    public MainPlayerInventoryLens(InventoryAdapter<IInventory, ItemStack> adapter, SlotProvider<IInventory, ItemStack> slots) {
+        this(0, adapter, slots);
+    }
 
-    public ContainerChestInventoryLens(InventoryAdapter<IInventory, ItemStack> adapter, SlotProvider<IInventory, ItemStack> slots, int numRows) {
-        super(adapter, slots);
-        this.numRows = numRows;
+    public MainPlayerInventoryLens(int base, InventoryAdapter<IInventory, ItemStack> adapter, SlotProvider<IInventory, ItemStack> slots) {
+        super(base, InventoryPlayer.getHotbarSize() + 9 * 3, adapter, slots);
         this.init(slots);
     }
 
     @Override
     protected void init(SlotProvider<IInventory, ItemStack> slots) {
-        // These use chest container ids (distinct from normal slot ids)
-        this.chestInventory = new GridInventoryLensImpl(0, 9, this.numRows, 9, slots);
-        // (9 * numRows) slots after the chest slots
-        // Add an additional 27 slots, for the player inventory + 9 Hotbar
-        this.playerInventory = new MainPlayerInventoryLens(9 * this.numRows, adapter, slots);
-        this.viewedInventories = Arrays.asList(this.chestInventory, this.playerInventory);
+        this.hotbar = new HotbarLensImpl(base, InventoryPlayer.getHotbarSize(), slots);
+        this.main = new GridInventoryLensImpl(base + 9, 9, 3, 9, slots);
 
-        // Add child inventories and basic slots with SlotIndex
-        super.init(slots);
+        this.addSpanningChild(this.hotbar);
+        this.addSpanningChild(this.main);
+    }
+
+    @Override
+    protected boolean isDelayedInit() {
+        return true; // player is needed for EquipmentInventoryLensImpl
+    }
+
+    public HotbarLens<IInventory, ItemStack> getHotbarLens() {
+        return this.hotbar;
+    }
+
+    public GridInventoryLens<IInventory, ItemStack> getMainLens() {
+        return this.main;
     }
 }

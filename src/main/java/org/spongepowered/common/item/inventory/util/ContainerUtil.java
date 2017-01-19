@@ -76,8 +76,8 @@ import org.spongepowered.common.item.inventory.lens.LensProvider;
 import org.spongepowered.common.item.inventory.lens.impl.MinecraftFabric;
 import org.spongepowered.common.item.inventory.lens.impl.collections.SlotCollection;
 import org.spongepowered.common.item.inventory.lens.impl.comp.GridInventoryLensImpl;
-import org.spongepowered.common.item.inventory.lens.impl.comp.HotbarLensImpl;
 import org.spongepowered.common.item.inventory.lens.impl.comp.OrderedInventoryLensImpl;
+import org.spongepowered.common.item.inventory.lens.impl.minecraft.MainPlayerInventoryLens;
 import org.spongepowered.common.item.inventory.lens.impl.minecraft.PlayerInventoryLens;
 import org.spongepowered.common.item.inventory.lens.impl.minecraft.container.ContainerLens;
 import org.spongepowered.common.item.inventory.lens.impl.slots.CraftingOutputSlotLensImpl;
@@ -288,9 +288,10 @@ public final class ContainerUtil {
                     // TODO Slots directly in a container may cause problems
                     lens = new SlotLensImpl(index);
                 } else if (lens instanceof PlayerInventoryLens && slotCount == 36) { // Player
-                    // Player Inventory + Hotbar
-                    lenses.add(new GridInventoryLensImpl(index, 9, 3, 9, slots));
-                    lenses.add(new HotbarLensImpl(index + 27, 9, slots));
+                    // Only show Lens for Player Inventory + Hotbar
+                    lenses.add(new MainPlayerInventoryLens(index, ((InventoryAdapter<IInventory, ItemStack>) container), slots));
+                    //lenses.add(new GridInventoryLensImpl(index, 9, 3, 9, slots));
+                    //lenses.add(new HotbarLensImpl(index + 27, 9, slots));
                     lens = null;
                 } else { // Unknown - fallback to OrderedInventory
                     lens = new OrderedInventoryLensImpl(index, slotCount, 1, slots);
